@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm -w run build:web",
-  "outputDirectory": "artifacts/campus-os-web/dist/public",
+  "buildCommand": "pnpm -w run build:web && rm -rf public && cp -R artifacts/campus-os-web/dist/public ./public",
+  "outputDirectory": "public",
   "installCommand": "pnpm install --frozen-lockfile",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
