@@ -20,6 +20,8 @@ import AnnouncementTabs from "@/components/AnnouncementTabs";
 import Link from "next/link";
 import TiltCard from "@/components/TiltCard";
 
+import LiveClock from "@/components/LiveClock";
+
 // --- Physics & Animation Variants ---
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -43,7 +45,9 @@ export default function BentoBoxDashboard() {
           </h1>
           <p className="text-foreground/60 font-medium mt-1">LPU · Mission Control 🚀</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex items-center gap-4">
+          <LiveClock />
+          <div className="w-px h-8 bg-white/10 mx-1" />
           <ThemeToggle />
           <motion.button 
             whileTap={{ scale: 0.95 }}
