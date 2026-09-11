@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Activity, ArrowUpRight, CalendarDays, CheckCircle2, Clock3, FileText,
@@ -15,7 +15,7 @@ import { Link, Route, Switch, useLocation, Router as WouterRouter } from 'wouter
 import { ErrorBoundary } from '@/components/error-boundary';
 import { BRAND_CONFIG } from '@/config/branding';
 
-const queryClient = new QueryClient();
+
 type Filter = 'all' | 'open' | 'assigned' | 'resolved';
 type Notice = { tone?: 'error' | 'success'; text: string };
 type ComplaintForm = {
@@ -221,7 +221,7 @@ function Router() {
 }
 
 function App() {
-  return <QueryClientProvider client={queryClient}><WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}><Router /></WouterRouter></QueryClientProvider>;
+  return <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}><Router /></WouterRouter>;
 }
 
 export default App;
