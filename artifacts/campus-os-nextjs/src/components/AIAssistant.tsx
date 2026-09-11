@@ -3,27 +3,25 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, X, Send, Bot, Loader2 } from "lucide-react";
-
-type Message = {
-  id: string;
-  role: "user" | "ai";
-  content: string;
-};
-
-const INITIAL_MESSAGES: Message[] = [
-  {
-    id: "msg-1",
-    role: "ai",
-    content: "Hi! I'm Dost. I noticed your attendance in CAP900 is below 75%. Would you like me to show you the upcoming assignments to help you catch up?",
-  }
-];
+import { useChat } from "@ai-sdk/react";
 
 export default function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
-  const [inputValue, setInputValue] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-route to localhost:5001 in dev, and relative /api in Vercel prod
+  const apiEndpoint = process.env.NODE_ENV === "development" ? "http://localhost:5001/api/chat" : "/api/chat";
+
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+    api: apiEndpoint,
+    initialMessages: [
+      {
+        id: "msg-1",
+        role: "assistant",
+        content: "Hi! I'm CampusOS AI, powered by real LLMs like Gemini & Groq. I can help you with anything related to LPU!",
+      }
+    ]
+  });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -31,46 +29,7 @@ export default function AIAssistant() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping, isOpen]);
-
-  const handleSend = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputValue.trim()) return;
-
-    const newMsg: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: inputValue.trim(),
-    };
-
-    setMessages((prev) => [...prev, newMsg]);
-    setInputValue("");
-    setIsTyping(true);
-
-    // Simulated AI Response based on simple keywords
-    setTimeout(() => {
-      let responseContent = "I can help you with your timetable, fee payments, or assignments. Just ask!";
-
-      const lowerInput = newMsg.content.toLowerCase();
-      if (lowerInput.includes("assignment") || lowerInput.includes("yes")) {
-        responseContent = "You have an 'OS Memory Management Report' due tomorrow at 11:59 PM. I suggest you start on that! Need help finding resources?";
-      } else if (lowerInput.includes("fee") || lowerInput.includes("pay")) {
-        responseContent = "You have a pending tuition fee of ₹1,25,000 for Spring 2024. You can pay it directly from the Fee Statement page.";
-      } else if (lowerInput.includes("rms") || lowerInput.includes("complaint")) {
-        responseContent = "I see you have 1 pending RMS complaint regarding 'Attendance Discrepancy'. It's still being reviewed by the department.";
-      }
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          role: "ai",
-          content: responseContent,
-        },
-      ]);
-      setIsTyping(false);
-    }, 1500);
-  };
+  }, [messages, isLoading, isOpen]);
 
   return (
     <>
@@ -130,7 +89,7 @@ export default function AIAssistant() {
                   </div>
                 </motion.div>
               ))}
-              {isTyping && (
+              {isLoading && messages[messages.length - 1]?.role === "user" && (
                 <motion.div
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                   className="flex justify-start"
@@ -146,17 +105,17 @@ export default function AIAssistant() {
 
             {/* Input Area */}
             <div className="p-4 bg-black/20 border-t border-white/10">
-              <form onSubmit={handleSend} className="relative flex items-center">
+              <form onSubmit={handleSubmit} className="relative flex items-center">
                 <input
                   type="text"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
+                  value={input}
+                  onChange={handleInputChange}
                   placeholder="Ask me anything..."
                   className="w-full bg-white/5 border border-white/10 rounded-full py-3 pl-4 pr-12 text-sm text-foreground focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50 transition-all placeholder:text-muted-foreground"
                 />
                 <button
                   type="submit"
-                  disabled={!inputValue.trim() || isTyping}
+                  disabled={!input.trim() || isLoading}
                   className="absolute right-2 p-2 bg-brand-500 text-white rounded-full hover:bg-brand-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4" />
