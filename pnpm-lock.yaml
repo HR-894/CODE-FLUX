@@ -67,6 +67,19 @@ overrides:
 importers:
 
   .:
+    dependencies:
+      '@ai-sdk/google':
+        specifier: ^4.0.67
+        version: 4.0.67(zod@3.25.76)
+      '@ai-sdk/openai':
+        specifier: ^4.0.65
+        version: 4.0.65(zod@3.25.76)
+      '@ai-sdk/react':
+        specifier: ^4.0.100
+        version: 4.0.100(react@19.1.0)(zod@3.25.76)
+      ai:
+        specifier: ^7.0.97
+        version: 7.0.97(zod@3.25.76)
     devDependencies:
       '@types/cors':
         specifier: ^2.8.19
@@ -95,9 +108,6 @@ importers:
       '@workspace/db':
         specifier: workspace:*
         version: link:../../lib/db
-      ai:
-        specifier: ^7.0.97
-        version: 7.0.97(zod@3.25.76)
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -279,12 +289,6 @@ importers:
 
   artifacts/campus-os-nextjs:
     dependencies:
-      '@ai-sdk/react':
-        specifier: ^4.0.100
-        version: 4.0.100(react@19.1.0)(zod@3.25.76)
-      ai:
-        specifier: ^7.0.97
-        version: 7.0.97(zod@3.25.76)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1

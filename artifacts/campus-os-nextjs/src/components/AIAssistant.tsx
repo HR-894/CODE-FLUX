@@ -7,12 +7,13 @@ import { useChat } from "@ai-sdk/react";
 
 export default function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-route to localhost:5001 in dev, and relative /api in Vercel prod
   const apiEndpoint = process.env.NODE_ENV === "development" ? "http://localhost:5001/api/chat" : "/api/chat";
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const { messages, append, isLoading } = useChat({
     api: apiEndpoint,
     initialMessages: [
       {
@@ -30,6 +31,14 @@ export default function AIAssistant() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading, isOpen]);
+
+  const handleSend = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim() || isLoading) return;
+    
+    append({ role: "user", content: inputValue.trim() });
+    setInputValue("");
+  };
 
   return (
     <>
@@ -85,7 +94,7 @@ export default function AIAssistant() {
                       ? "bg-brand-500 text-white rounded-tr-sm"
                       : "bg-white/10 text-foreground rounded-tl-sm border border-white/5"
                     }`}>
-                    {msg.content}
+                    {msg.content as string}
                   </div>
                 </motion.div>
               ))}
@@ -105,11 +114,11 @@ export default function AIAssistant() {
 
             {/* Input Area */}
             <div className="p-4 bg-black/20 border-t border-white/10">
-              <form onSubmit={handleSubmit} className="relative flex items-center">
+              <form onSubmit={handleSend} className="relative flex items-center">
                 <input
                   type="text"
-                  value={input}
-                  onChange={handleInputChange}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Ask me anything..."
                   className="w-full bg-white/5 border border-white/10 rounded-full py-3 pl-4 pr-12 text-sm text-foreground focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50 transition-all placeholder:text-muted-foreground"
                 />
