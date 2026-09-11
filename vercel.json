@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm --filter campus-os-nextjs run build && rm -rf public && cp -R artifacts/campus-os-nextjs/out ./public",
+  "buildCommand": "pnpm --filter campus-os-nextjs run build && pnpm --filter @workspace/api-server run build && rm -rf public && cp -R artifacts/campus-os-nextjs/out ./public",
   "outputDirectory": "public",
   "cleanUrls": true,
   "installCommand": "pnpm install --frozen-lockfile",
