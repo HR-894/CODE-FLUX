@@ -1,0 +1,16 @@
+node_modules
+.git
+.github
+.agents
+.vscode
+.idea
+*.log
+*.tsbuildinfo
+.expo
+.expo-shared
+dist
+tmp
+out-tsc
+coverage
+.env
+.env.local

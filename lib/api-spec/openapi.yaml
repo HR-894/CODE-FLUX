@@ -1,0 +1,326 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: CampusOS shared API for complaint routing and campus operations
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: dashboard
+    description: Campus overview data
+  - name: complaints
+    description: Smart complaint routing
+  - name: search
+    description: Low-latency campus search suggestions
+  - name: campus
+    description: Cached campus reference data
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Get the campus dashboard overview
+      responses:
+        "200":
+          description: Dashboard overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardOverview"
+  /complaints:
+    get:
+      operationId: listComplaints
+      tags: [complaints]
+      summary: List complaints ordered by live priority
+      parameters:
+        - in: query
+          name: status
+          schema:
+            $ref: "#/components/schemas/ComplaintStatus"
+      responses:
+        "200":
+          description: Complaints
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Complaint"
+    post:
+      operationId: createComplaint
+      tags: [complaints]
+      summary: Submit a complaint for smart routing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateComplaintInput"
+      responses:
+        "201":
+          description: Complaint accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complaint"
+        "429":
+          description: Complaint submission rate limit exceeded
+  /complaints/next:
+    post:
+      operationId: extractNextComplaint
+      tags: [complaints]
+      summary: Extract the highest-priority open complaint
+      responses:
+        "200":
+          description: Highest-priority complaint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complaint"
+        "204":
+          description: No open complaints
+  /search/suggestions:
+    get:
+      operationId: getSearchSuggestions
+      tags: [search]
+      summary: Get prefix suggestions from the in-memory campus index
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 64
+      responses:
+        "200":
+          description: Search suggestions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SearchSuggestion"
+  /campus/timetable:
+    get:
+      operationId: getTimetable
+      tags: [campus]
+      summary: Get cached timetable entries
+      responses:
+        "200":
+          description: Timetable
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimetableEntry"
+  /campus/menu:
+    get:
+      operationId: getMenu
+      tags: [campus]
+      summary: Get cached dining menu
+      responses:
+        "200":
+          description: Menu
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MenuItem"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    ComplaintStatus:
+      type: string
+      enum: [open, assigned, resolved]
+    ComplaintCategory:
+      type: string
+      enum: [facilities, academics, safety, it, dining]
+    ComplaintSeverity:
+      type: string
+      enum: [low, medium, high, critical]
+    Complaint:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          $ref: "#/components/schemas/ComplaintCategory"
+        severity:
+          $ref: "#/components/schemas/ComplaintSeverity"
+        status:
+          $ref: "#/components/schemas/ComplaintStatus"
+        location:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        priority:
+          type: number
+        priorityLabel:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - category
+        - severity
+        - status
+        - location
+        - createdAt
+        - priority
+        - priorityLabel
+    CreateComplaintInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 5
+          maxLength: 120
+        description:
+          type: string
+          minLength: 10
+          maxLength: 2000
+        category:
+          $ref: "#/components/schemas/ComplaintCategory"
+        severity:
+          $ref: "#/components/schemas/ComplaintSeverity"
+        location:
+          type: string
+          minLength: 2
+          maxLength: 160
+      required:
+        - title
+        - description
+        - category
+        - severity
+        - location
+    DashboardOverview:
+      type: object
+      properties:
+        greeting:
+          type: string
+        activeComplaints:
+          type: integer
+        resolvedThisWeek:
+          type: integer
+        averageResponseHours:
+          type: number
+        attendanceRate:
+          type: number
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/Activity"
+        priorityBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/BreakdownItem"
+      required:
+        - greeting
+        - activeComplaints
+        - resolvedThisWeek
+        - averageResponseHours
+        - attendanceRate
+        - recentActivity
+        - priorityBreakdown
+    Activity:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+        time:
+          type: string
+        tone:
+          type: string
+          enum: [indigo, cyan, amber, rose, emerald]
+      required: [id, title, detail, time, tone]
+    BreakdownItem:
+      type: object
+      properties:
+        label:
+          type: string
+        value:
+          type: integer
+        color:
+          type: string
+      required: [label, value, color]
+    SearchSuggestion:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        kind:
+          type: string
+          enum: [directory, event, location]
+        meta:
+          type: string
+      required: [id, label, kind, meta]
+    TimetableEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        room:
+          type: string
+        time:
+          type: string
+        instructor:
+          type: string
+        color:
+          type: string
+      required: [id, title, room, time, instructor, color]
+    MenuItem:
+      type: object
+      properties:
+        id:
+          type: string
+        meal:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+      required: [id, meal, title, description, tags]
+

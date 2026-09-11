@@ -1,0 +1,2 @@
+- [Generated client DOM typings](generated-client-dom-typings.md) — Orval's fetch helper uses `Headers.entries()`, so composite client libs need `dom.iterable`.
+- [Expo preview environment](expo-preview-environment.md) — Metro can serve normally even when the host cannot load React Native DevTools due to missing libglib.

@@ -1,0 +1,52 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="180" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="50%" stop-color="#1E1B4B"/>
+      <stop offset="100%" stop-color="#0B0F19"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="50" y1="24" x2="130" y2="24" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="50%" stop-color="#FBBF24"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="cyanGrad" x1="62" y1="46" x2="118" y2="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+    <linearGradient id="portalGrad" x1="90" y1="70" x2="90" y2="152" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E2E8F0"/>
+    </linearGradient>
+    <linearGradient id="wingGrad" x1="40" y1="95" x2="140" y2="152" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <filter id="glow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#38BDF8" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle with subtle border -->
+  <rect width="180" height="180" rx="38" fill="url(#bgGrad)"/>
+  <rect x="1" y="1" width="178" height="178" rx="37" stroke="#334155" stroke-width="1.5" stroke-opacity="0.6"/>
+
+  <!-- Outer Signal Wave (Gold/Amber) -->
+  <path d="M50 48C61.5 35 75 29 90 29C105 29 118.5 35 130 48" stroke="url(#goldGrad)" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Inner Signal Wave (Cyan/Indigo) -->
+  <path d="M64 61C71.5 52.5 80.5 48 90 48C99.5 48 108.5 52.5 116 61" stroke="url(#cyanGrad)" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- Campus Wings (Architectural Colonnade) -->
+  <path d="M30 148V106L58 92V148H30Z" fill="url(#wingGrad)" fill-opacity="0.85"/>
+  <path d="M150 148V106L122 92V148H150Z" fill="url(#wingGrad)" fill-opacity="0.85"/>
+
+  <!-- Central Archway Pediment / Roof -->
+  <path d="M90 70L58 92V152H74V124C74 115.163 81.163 108 90 108C98.837 108 106 115.163 106 124V152H122V92L90 70Z" fill="url(#portalGrad)" filter="url(#glow)"/>
+
+  <!-- Inner Archway Aperture Depth -->
+  <path d="M74 152V124C74 115.163 81.163 108 90 108C98.837 108 106 115.163 106 124V152H74Z" fill="#0B0F19"/>
+
+  <!-- Center Keystone Accent -->
+  <circle cx="90" cy="94" r="3.5" fill="#38BDF8"/>
+</svg>
