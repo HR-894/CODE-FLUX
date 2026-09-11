@@ -1,7 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm -w run build:web && rm -rf public && cp -R artifacts/campus-os-web/dist/public ./public",
+  "buildCommand": "pnpm --filter campus-os-nextjs run build && rm -rf public && cp -R artifacts/campus-os-nextjs/out ./public",
   "outputDirectory": "public",
+  "cleanUrls": true,
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "vite",
   "rewrites": [
@@ -9,6 +10,15 @@
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [
+    {
+      "source": "/_next/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
     {
       "source": "/assets/(.*)",
       "headers": [
