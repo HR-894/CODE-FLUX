@@ -292,12 +292,6 @@ importers:
 
   artifacts/campus-os-nextjs:
     dependencies:
-      '@ai-sdk/react':
-        specifier: ^4.0.100
-        version: 4.0.100(react@19.1.0)(zod@3.25.76)
-      ai:
-        specifier: ^7.0.97
-        version: 7.0.97(zod@3.25.76)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1

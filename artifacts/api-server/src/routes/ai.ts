@@ -28,16 +28,30 @@ aiRouter.post("/chat", async (req: Request, res: Response, next: NextFunction) =
       model = google("gemini-2.5-flash");
     }
 
-    // Stream the text to the Express response
+    // Stream plain text chunks to the Express response
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Transfer-Encoding", "chunked");
+    res.setHeader("Cache-Control", "no-cache");
+
     const result = streamText({
       model,
       system: "You are CampusOS AI, a frictionless GenZ student assistant for Lovely Professional University. Keep answers very concise, helpful, and use modern slang naturally (no cap).",
       messages,
     });
 
-    result.pipeDataStreamToResponse(res);
+    // Stream each text chunk as plain text (not the AI SDK data protocol)
+    for await (const chunk of result.textStream) {
+      res.write(chunk);
+    }
+
+    res.end();
   } catch (err) {
-    next(err);
+    // If headers already sent, we can't send a JSON error
+    if (res.headersSent) {
+      res.end();
+    } else {
+      next(err);
+    }
   }
 });
 

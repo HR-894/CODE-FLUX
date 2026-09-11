@@ -1,43 +1,114 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, X, Send, Bot, Loader2 } from "lucide-react";
-import { useChat } from "@ai-sdk/react";
+
+interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+}
 
 export default function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: "msg-1",
+      role: "assistant",
+      content:
+        "Hi! I'm CampusOS AI, powered by real LLMs like Gemini & Groq. I can help you with anything related to LPU!",
+    },
+  ]);
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-route to localhost:5001 in dev, and relative /api in Vercel prod
-  const apiEndpoint = process.env.NODE_ENV === "development" ? "http://localhost:5001/api/chat" : "/api/chat";
-
-  const { messages, append, isLoading } = useChat({
-    api: apiEndpoint,
-    initialMessages: [
-      {
-        id: "msg-1",
-        role: "assistant",
-        content: "Hi! I'm CampusOS AI, powered by real LLMs like Gemini & Groq. I can help you with anything related to LPU!",
-      }
-    ]
-  });
-
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isLoading, isOpen]);
+  }, [messages, isLoading, isOpen, scrollToBottom]);
 
-  const handleSend = (e: React.FormEvent) => {
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
-    
-    append({ role: "user", content: inputValue.trim() });
+    const text = inputValue.trim();
+    if (!text || isLoading) return;
+
+    // Append user message
+    const userMsg: ChatMessage = {
+      id: `msg-${Date.now()}`,
+      role: "user",
+      content: text,
+    };
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
     setInputValue("");
+    setIsLoading(true);
+
+    try {
+      // Auto-route to localhost:5001 in dev, relative /api in Vercel prod
+      const apiEndpoint =
+        process.env.NODE_ENV === "development"
+          ? "http://localhost:5001/api/chat"
+          : "/api/chat";
+
+      const res = await fetch(apiEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: updatedMessages.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status}`);
+      }
+
+      // Stream the response
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) throw new Error("No response body");
+
+      const assistantId = `msg-${Date.now()}-ai`;
+      // Add an empty assistant message to fill incrementally
+      setMessages((prev) => [
+        ...prev,
+        { id: assistantId, role: "assistant", content: "" },
+      ]);
+
+      let done = false;
+      while (!done) {
+        const { value, done: streamDone } = await reader.read();
+        done = streamDone;
+        if (value) {
+          const chunk = decoder.decode(value, { stream: true });
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId ? { ...m, content: m.content + chunk } : m
+            )
+          );
+        }
+      }
+    } catch (err) {
+      console.error("AI chat error:", err);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `msg-${Date.now()}-err`,
+          role: "assistant",
+          content: "Oops, something went wrong. Make sure the API keys are configured! 🔑",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -70,7 +141,9 @@ export default function AIAssistant() {
                 </div>
                 <div>
                   <h3 className="font-bold text-foreground">Campus AI</h3>
-                  <p className="text-[10px] text-green-400 font-medium uppercase tracking-wider">Online</p>
+                  <p className="text-[10px] text-green-400 font-medium uppercase tracking-wider">
+                    Online
+                  </p>
                 </div>
               </div>
               <button
@@ -88,33 +161,45 @@ export default function AIAssistant() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   key={msg.id}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`flex ${
+                    msg.role === "user" ? "justify-end" : "justify-start"
+                  }`}
                 >
-                  <div className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${msg.role === "user"
-                      ? "bg-brand-500 text-white rounded-tr-sm"
-                      : "bg-white/10 text-foreground rounded-tl-sm border border-white/5"
-                    }`}>
-                    {msg.content as string}
+                  <div
+                    className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${
+                      msg.role === "user"
+                        ? "bg-brand-500 text-white rounded-tr-sm"
+                        : "bg-white/10 text-foreground rounded-tl-sm border border-white/5"
+                    }`}
+                  >
+                    {msg.content}
                   </div>
                 </motion.div>
               ))}
-              {isLoading && messages[messages.length - 1]?.role === "user" && (
-                <motion.div
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  className="flex justify-start"
-                >
-                  <div className="bg-white/10 p-4 rounded-2xl rounded-tl-sm border border-white/5 flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin text-brand-400" />
-                    <span className="text-xs text-muted-foreground">AI is thinking...</span>
-                  </div>
-                </motion.div>
-              )}
+              {isLoading &&
+                messages[messages.length - 1]?.role === "user" && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex justify-start"
+                  >
+                    <div className="bg-white/10 p-4 rounded-2xl rounded-tl-sm border border-white/5 flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin text-brand-400" />
+                      <span className="text-xs text-muted-foreground">
+                        AI is thinking...
+                      </span>
+                    </div>
+                  </motion.div>
+                )}
               <div ref={messagesEndRef} />
             </div>
 
             {/* Input Area */}
             <div className="p-4 bg-black/20 border-t border-white/10">
-              <form onSubmit={handleSend} className="relative flex items-center">
+              <form
+                onSubmit={handleSend}
+                className="relative flex items-center"
+              >
                 <input
                   type="text"
                   value={inputValue}
@@ -124,7 +209,7 @@ export default function AIAssistant() {
                 />
                 <button
                   type="submit"
-                  disabled={!input.trim() || isLoading}
+                  disabled={!inputValue.trim() || isLoading}
                   className="absolute right-2 p-2 bg-brand-500 text-white rounded-full hover:bg-brand-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4" />
