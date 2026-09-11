@@ -41,7 +41,7 @@ export default function BentoBoxDashboard() {
           <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-amber-500 drop-shadow-sm">
             CampusOS
           </h1>
-          <p className="text-foreground/60 font-medium mt-1">LPU · Dashboard</p>
+          <p className="text-foreground/60 font-medium mt-1">LPU · Mission Control 🚀</p>
         </div>
         <div className="flex gap-3">
           <ThemeToggle />
@@ -64,7 +64,7 @@ export default function BentoBoxDashboard() {
         <div className="lg:col-span-8 flex flex-col gap-5">
           {/* Quick Links Grid */}
           <div>
-            <h2 className="text-lg font-bold mb-4 px-2">Important Links</h2>
+            <h2 className="text-lg font-bold mb-4 px-2">Quick Hits ⚡️</h2>
             <QuickLinksGrid onOpenLeaveSheet={() => setLeaveSheetOpen(true)} />
           </div>
 
@@ -80,7 +80,7 @@ export default function BentoBoxDashboard() {
           {/* Attendance / Courses (Link to Academics Page) */}
           <TiltCard className="h-[280px]">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl text-foreground/90 font-bold tracking-tight">My Courses</h2>
+              <h2 className="text-xl text-foreground/90 font-bold tracking-tight">Skill Tree 🧠</h2>
               <Link href="/academics">
                 <ChevronRight className="text-foreground/40 hover:text-brand-500 transition-colors cursor-pointer" size={20} />
               </Link>
@@ -120,7 +120,7 @@ export default function BentoBoxDashboard() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2 text-brand-500">
                 <CalendarDays size={20} />
-                <h2 className="text-lg font-bold">Today&apos;s Schedule</h2>
+                <h2 className="text-lg font-bold">Today&apos;s Grind ⏳</h2>
               </div>
             </div>
             <div className="flex-1 flex flex-col gap-0 overflow-y-auto custom-scrollbar pr-2 relative">
@@ -147,7 +147,7 @@ export default function BentoBoxDashboard() {
           {/* Pending Assignments */}
           <TiltCard className="min-h-[200px]">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg text-foreground/90 font-bold tracking-tight">Assignments</h2>
+              <h2 className="text-lg text-foreground/90 font-bold tracking-tight">Side Quests 💀</h2>
               <span className="bg-amber-500/10 text-amber-500 text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-wider">2 Pending</span>
             </div>
             <div className="flex flex-col gap-3 overflow-y-auto custom-scrollbar pr-1">
