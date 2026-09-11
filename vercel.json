@@ -3,6 +3,7 @@
   "buildCommand": "pnpm -w run build:web && rm -rf public && cp -R artifacts/campus-os-web/dist/public ./public",
   "outputDirectory": "public",
   "installCommand": "pnpm install --frozen-lockfile",
+  "framework": "vite",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
