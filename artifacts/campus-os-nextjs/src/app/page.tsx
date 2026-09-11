@@ -36,7 +36,7 @@ export default function BentoBoxDashboard() {
     <main className="min-h-screen p-4 md:p-8 font-sans max-w-[1400px] mx-auto">
       
       {/* Header */}
-      <header className="mb-8 flex items-center justify-between">
+      <header className="sticky top-0 z-50 mb-8 pt-4 pb-4 flex items-center justify-between bg-background/60 backdrop-blur-xl border-b border-white/5 -mx-4 px-4 md:-mx-8 md:px-8">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-amber-500 drop-shadow-sm">
             CampusOS
