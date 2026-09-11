@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function CalendarPage() {
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 h-[80vh] flex flex-col items-center justify-center text-center">
+    <div className="max-w-4xl mx-auto p-4 md:p-8 pt-8 space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 h-[80vh] flex flex-col items-center justify-center text-center">
       <CalendarDays className="w-24 h-24 text-brand-500/50 mb-4" />
       <h1 className="text-4xl font-bold tracking-tight">Academic Calendar</h1>
       <p className="text-muted-foreground max-w-md text-lg">
