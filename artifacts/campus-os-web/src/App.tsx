@@ -179,7 +179,7 @@ function ComplaintsPage() {
 }
 
 function ComplaintRow({ complaint, compact = false }: { complaint: { id: string; title: string; description: string; category?: string; severity?: string; status: string; location: string; createdAt?: string; priority?: number; priorityLabel: string }; compact?: boolean }) {
-  return <div className="complaint-row" data-testid={`row-complaint-${complaint.id}`}><div><h3 className="complaint-title">{complaint.title}</h3><p className="complaint-description">{compact && complaint.description.length > 110 ? `${complaint.description.slice(0, 110)}…` : complaint.description}</p><div className="complaint-meta"><span className="meta-pin"><MapPin /> {complaint.location}</span>{!compact && complaint.createdAt && <><span>·</span><span>{new Date(complaint.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span></>}{!compact && complaint.category && <><span>·</span><span>{complaint.category}</span></>}</div></div><div className="badges"><span className={`badge badge-${complaint.severity || 'low'}`}>{complaint.priorityLabel || `${complaint.priority || 0} priority`}</span><span className={`badge ${complaint.status === 'assigned' ? 'badge-assigned' : 'badge-status'}`}>{statusLabel(complaint.status)}</span></div></div>;
+  return <div className="complaint-row" data-testid={`row-complaint-${complaint.id}`}><div><h3 className="complaint-title">{complaint.title}</h3><p className="complaint-description">{compact && (complaint.description || '').length > 110 ? `${(complaint.description || '').slice(0, 110)}…` : (complaint.description || 'No description provided')}</p><div className="complaint-meta"><span className="meta-pin"><MapPin /> {complaint.location}</span>{!compact && complaint.createdAt && <><span>·</span><span>{new Date(complaint.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span></>}{!compact && complaint.category && <><span>·</span><span>{complaint.category}</span></>}</div></div><div className="badges"><span className={`badge badge-${complaint.severity || 'low'}`}>{complaint.priorityLabel || `${complaint.priority || 0} priority`}</span><span className={`badge ${complaint.status === 'assigned' ? 'badge-assigned' : 'badge-status'}`}>{statusLabel(complaint.status)}</span></div></div>;
 }
 
 function ComplaintDialog({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
@@ -207,7 +207,8 @@ function EmptyState({ icon: Icon, title, copy, action }: { icon: LucideIcon; tit
   return <div className="empty-state" data-testid={`state-empty-${title.toLowerCase().replaceAll(' ', '-')}`}><div className="empty-icon"><Icon /></div><h3>{title}</h3><p>{copy}</p>{action}</div>;
 }
 
-function statusLabel(status: string) {
+function statusLabel(status?: string) {
+  if (!status) return 'Unknown';
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
