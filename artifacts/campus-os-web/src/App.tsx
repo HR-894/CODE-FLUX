@@ -30,6 +30,11 @@ const ease = [0.22, 1, 0.36, 1] as const;
 const enter = { hidden: { opacity: 0, y: 13 }, show: { opacity: 1, y: 0, transition: { duration: .45, ease } } };
 const stagger = { show: { transition: { staggerChildren: .065 } } };
 
+/** Safely coerce any value to an array — defends against API responses returning strings (e.g. HTML from SPA rewrites). */
+function asArray<T>(value: unknown): T[] {
+  return Array.isArray(value) ? value : [];
+}
+
 function Shell({ children }: { children: ReactNode }) {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -110,7 +115,8 @@ function Overview() {
   const overview = dashboard.data;
   const greetingName = overview?.greeting?.replace(/^Good morning,\s*/i, '') || 'Aanya';
   const pulse = overview ? Math.round(overview.attendanceRate <= 1 ? overview.attendanceRate * 100 : overview.attendanceRate) : 92;
-  const menuItem = menu.data?.[0];
+  const menuData = asArray(menu.data);
+  const menuItem = menuData[0];
   return (
     <main className="page-wrap">
       <PageHeader eyebrow="Tuesday · 08 October 2024" title="Good morning," highlight={greetingName} description="Your campus, at a glance. Keep an eye on what needs your attention and what is already moving." actions={<Link href="/complaints" className="button button-primary" data-testid="link-submit-complaint"><Plus /> Submit a complaint</Link>} />
@@ -124,13 +130,13 @@ function Overview() {
         <div className="stack">
           <section className="panel pulse-card" data-testid="card-campus-pulse">
             <div className="panel-head"><div><h2 className="panel-title">Campus pulse</h2><div className="panel-kicker">Signals from your student day</div></div><Activity size={18} /></div>
-            <div className="panel-body pulse-body"><div><div className="pulse-score" data-testid="text-campus-pulse">{pulse}<span>%</span></div><div className="pulse-caption">Your week is tracking well. The small stuff is already in motion.</div></div><div className="pulse-bars">{(overview?.priorityBreakdown || [{ label: 'Resolved', value: 64, color: '#3b9a8d' }, { label: 'Assigned', value: 42, color: '#eab950' }, { label: 'Open', value: 22, color: '#e6795f' }]).slice(0, 3).map((item) => <div className="pulse-bar-row" key={item.label}><span>{item.label}</span><div className="pulse-track"><div className="pulse-fill" style={{ width: `${Math.min(100, Math.max(10, item.value))}%`, background: item.color }} /></div><span>{item.value}</span></div>)}</div></div>
+            <div className="panel-body pulse-body"><div><div className="pulse-score" data-testid="text-campus-pulse">{pulse}<span>%</span></div><div className="pulse-caption">Your week is tracking well. The small stuff is already in motion.</div></div><div className="pulse-bars">{(asArray(overview?.priorityBreakdown).length ? asArray(overview?.priorityBreakdown) : [{ label: 'Resolved', value: 64, color: '#3b9a8d' }, { label: 'Assigned', value: 42, color: '#eab950' }, { label: 'Open', value: 22, color: '#e6795f' }]).slice(0, 3).map((item) => <div className="pulse-bar-row" key={item.label}><span>{item.label}</span><div className="pulse-track"><div className="pulse-fill" style={{ width: `${Math.min(100, Math.max(10, item.value))}%`, background: item.color }} /></div><span>{item.value}</span></div>)}</div></div>
           </section>
-          {complaints.isLoading ? <LoadingPanel rows={3} /> : complaints.isError ? <div className="panel"><ErrorState retry={() => complaints.refetch()} /></div> : <ComplaintPreview complaints={complaints.data || []} />}
-          {dashboard.isLoading ? <LoadingPanel rows={3} /> : dashboard.isError ? <div className="panel"><ErrorState retry={() => dashboard.refetch()} /></div> : <ActivityPanel items={overview?.recentActivity || []} />}
+          {complaints.isLoading ? <LoadingPanel rows={3} /> : complaints.isError ? <div className="panel"><ErrorState retry={() => complaints.refetch()} /></div> : <ComplaintPreview complaints={asArray(complaints.data)} />}
+          {dashboard.isLoading ? <LoadingPanel rows={3} /> : dashboard.isError ? <div className="panel"><ErrorState retry={() => dashboard.refetch()} /></div> : <ActivityPanel items={asArray(overview?.recentActivity)} />}
         </div>
         <div className="stack">
-          {timetable.isLoading ? <LoadingPanel rows={3} /> : timetable.isError ? <div className="panel"><ErrorState retry={() => timetable.refetch()} /></div> : <TimetablePanel entries={timetable.data || []} />}
+          {timetable.isLoading ? <LoadingPanel rows={3} /> : timetable.isError ? <div className="panel"><ErrorState retry={() => timetable.refetch()} /></div> : <TimetablePanel entries={asArray(timetable.data)} />}
           {menu.isLoading ? <LoadingPanel rows={2} /> : menu.isError ? <div className="panel"><ErrorState retry={() => menu.refetch()} /></div> : <MenuPanel item={menuItem} />}
         </div>
       </div>
@@ -155,7 +161,7 @@ function TimetablePanel({ entries }: { entries: Array<{ id: string; title: strin
 }
 
 function MenuPanel({ item }: { item?: { meal: string; title: string; description: string; tags: string[] } }) {
-  return <section className="panel" data-testid="card-dining"><div className="panel-head"><div><h2 className="panel-title">Dining context</h2><div className="panel-kicker">North Quad · today's menu</div></div><Utensils size={17} color="#eab950" /></div><div className="panel-body">{item ? <div className="menu-feature"><div className="menu-art" aria-hidden="true" /><div><div className="meal-label">{item.meal}</div><div className="menu-title">{item.title}</div><div className="menu-desc">{item.description}</div><div className="tag-list">{(item.tags || []).slice(0, 3).map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div></div></div> : <EmptyState icon={Utensils} title="Menu is quiet" copy="Dining details will show here when available." />}</div></section>;
+  return <section className="panel" data-testid="card-dining"><div className="panel-head"><div><h2 className="panel-title">Dining context</h2><div className="panel-kicker">North Quad · today's menu</div></div><Utensils size={17} color="#eab950" /></div><div className="panel-body">{item ? <div className="menu-feature"><div className="menu-art" aria-hidden="true" /><div><div className="meal-label">{item.meal}</div><div className="menu-title">{item.title}</div><div className="menu-desc">{item.description}</div><div className="tag-list">{asArray(item.tags).slice(0, 3).map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div></div></div> : <EmptyState icon={Utensils} title="Menu is quiet" copy="Dining details will show here when available." />}</div></section>;
 }
 
 function ComplaintsPage() {
@@ -166,7 +172,7 @@ function ComplaintsPage() {
   const params = { status: filter === 'all' ? undefined : filter as 'open' | 'assigned' | 'resolved' };
   const complaints = useListComplaints(params);
   const nextComplaint = useExtractNextComplaint();
-  const list = complaints.data || [];
+  const list = asArray(complaints.data);
   const refresh = () => queryClient.invalidateQueries({ queryKey: getListComplaintsQueryKey(params) });
   const claimNext = () => nextComplaint.mutate(undefined, { onSuccess: (complaint) => { setNotice({ text: complaint ? `Next priority: ${complaint.title}` : 'The queue is clear.' }); }, onError: () => setNotice({ tone: 'error', text: 'Could not inspect the priority queue.' }) });
   return <main className="page-wrap">
