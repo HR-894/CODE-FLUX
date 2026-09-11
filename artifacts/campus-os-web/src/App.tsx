@@ -155,7 +155,7 @@ function TimetablePanel({ entries }: { entries: Array<{ id: string; title: strin
 }
 
 function MenuPanel({ item }: { item?: { meal: string; title: string; description: string; tags: string[] } }) {
-  return <section className="panel" data-testid="card-dining"><div className="panel-head"><div><h2 className="panel-title">Dining context</h2><div className="panel-kicker">North Quad · today's menu</div></div><Utensils size={17} color="#eab950" /></div><div className="panel-body">{item ? <div className="menu-feature"><div className="menu-art" aria-hidden="true" /><div><div className="meal-label">{item.meal}</div><div className="menu-title">{item.title}</div><div className="menu-desc">{item.description}</div><div className="tag-list">{item.tags.slice(0, 3).map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div></div></div> : <EmptyState icon={Utensils} title="Menu is quiet" copy="Dining details will show here when available." />}</div></section>;
+  return <section className="panel" data-testid="card-dining"><div className="panel-head"><div><h2 className="panel-title">Dining context</h2><div className="panel-kicker">North Quad · today's menu</div></div><Utensils size={17} color="#eab950" /></div><div className="panel-body">{item ? <div className="menu-feature"><div className="menu-art" aria-hidden="true" /><div><div className="meal-label">{item.meal}</div><div className="menu-title">{item.title}</div><div className="menu-desc">{item.description}</div><div className="tag-list">{(item.tags || []).slice(0, 3).map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div></div></div> : <EmptyState icon={Utensils} title="Menu is quiet" copy="Dining details will show here when available." />}</div></section>;
 }
 
 function ComplaintsPage() {
