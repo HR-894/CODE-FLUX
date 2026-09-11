@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "types": ["express", "cors"]
+  },
+  "include": ["**/*.ts", "../artifacts/api-server/**/*.ts"]
+}
