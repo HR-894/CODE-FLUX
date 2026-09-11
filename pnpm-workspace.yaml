@@ -59,6 +59,8 @@ catalog:
 autoInstallPeers: false
 
 overrides:
+  react: 19.1.0
+  react-dom: 19.1.0
   # Patch CVE-2024-52796 (Missing buffer bounds check in uuid)
   uuid: ">=11.1.1"
   # Patch CVE-2022-38900 (Exponential decoding DoS in decode-uri-component)
