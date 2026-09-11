@@ -134,6 +134,13 @@ export class ComplaintRouterService {
 
     if (oldestId) {
       this.complaints.delete(oldestId);
+      
+      // Rebuild queue to prevent memory leak of evicted items staying in the MinHeap indefinitely
+      const openRecords = [...this.complaints.values()].filter(c => c.status === "open");
+      while (!this.queue.isEmpty()) {
+        this.queue.extractMin();
+      }
+      openRecords.forEach(record => this.queue.push(record));
     }
   }
 
@@ -174,7 +181,8 @@ export class ComplaintRouterService {
     while (!this.queue.isEmpty()) {
       const next = this.queue.extractMin();
 
-      if (next === undefined || next.status !== "open") {
+      // Ensure the complaint wasn't evicted from the Map, and is still open
+      if (next === undefined || next.status !== "open" || !this.complaints.has(next.id)) {
         continue;
       }
 

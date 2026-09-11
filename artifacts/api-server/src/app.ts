@@ -10,6 +10,9 @@ const app: Express = express();
 // Disable Express fingerprinting header
 app.disable("x-powered-by");
 
+// Trust proxy for proper rate limiting behind reverse proxies (like Vercel)
+app.set("trust proxy", 1);
+
 // Request logging
 app.use(
   pinoHttp({
@@ -52,7 +55,7 @@ app.use(
       if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(null, true); // Fallback gracefully for local dev while retaining origin header validation
+        callback(new Error("Not allowed by CORS")); // Reject unauthorized origins
       }
     },
     credentials: true,

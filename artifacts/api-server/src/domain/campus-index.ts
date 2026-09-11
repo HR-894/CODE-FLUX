@@ -27,13 +27,19 @@ export class CampusTrie {
 
   public add(item: CampusIndexItem): void {
     this.items.set(item.id, item);
-    let node = this.root;
-
-    for (const character of item.label.toLowerCase()) {
-      const next = node.children.get(character) ?? createNode();
-      node.children.set(character, next);
-      node = next;
-      node.itemIds.add(item.id);
+    
+    // Index the full string and each individual word
+    const lowerLabel = item.label.toLowerCase();
+    const words = [lowerLabel, ...lowerLabel.split(/\s+/)];
+    
+    for (const word of words) {
+      let node = this.root;
+      for (const character of word) {
+        const next = node.children.get(character) ?? createNode();
+        node.children.set(character, next);
+        node = next;
+        node.itemIds.add(item.id);
+      }
     }
   }
 

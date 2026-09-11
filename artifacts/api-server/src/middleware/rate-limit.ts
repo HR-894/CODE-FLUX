@@ -22,6 +22,17 @@ export class InMemoryRateLimitStore implements RateLimitStore {
         this.timestamps.set(key, active);
       }
     }
+    
+    // Force eviction of oldest entries if size still exceeds limit to prevent algorithmic complexity DoS
+    if (this.timestamps.size > this.maxEntries) {
+      const excess = this.timestamps.size - this.maxEntries;
+      let removed = 0;
+      for (const key of this.timestamps.keys()) {
+        this.timestamps.delete(key);
+        if (++removed >= excess) break;
+      }
+    }
+
     this.lastPrunedAt = now;
   }
 
